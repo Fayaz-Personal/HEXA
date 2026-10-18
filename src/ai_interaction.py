@@ -1022,7 +1022,7 @@ async def do_generate_image(content: str, session_id: Optional[str] = None, owne
                 from src.deliverable_writer import generate_local_image
                 img_path = generate_local_image(prompt)
                 filename = os.path.basename(img_path)
-                image_url = f"/api/generated-image/{filename}"
+                image_url = f"/api/images/{filename}"
                 return {
                     "results": f"Generated local image for: {prompt[:100]}",
                     "image_url": image_url,
@@ -1055,8 +1055,19 @@ async def do_generate_image(content: str, session_id: Optional[str] = None, owne
                 raise
             url, model_id, headers = await asyncio.to_thread(_resolve_model, model_spec, owner=owner)
     except ValueError:
-        return {"error": f"No endpoint found with image model '{model_spec}'. "
-                "Configure an OpenAI-compatible endpoint with image generation support."}
+        try:
+            from src.deliverable_writer import generate_local_image
+            img_path = generate_local_image(prompt)
+            filename = os.path.basename(img_path)
+            image_url = f"/api/images/{filename}"
+            return {
+                "results": f"Generated local image for: {prompt[:100]}",
+                "image_url": image_url,
+                "image_prompt": prompt,
+                "image_model": "HEXA Local Engine (Diffusers/Pillow)",
+            }
+        except Exception as _err:
+            return {"error": f"No endpoint found with image model '{model_spec}' and local fallback failed: {_err}"}
 
     # Detect if this is a GPT image model vs DALL-E vs local diffusion
     _model_leaf = model_id_leaf(model_id)

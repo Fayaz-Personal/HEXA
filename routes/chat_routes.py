@@ -447,15 +447,30 @@ def _endpoint_cache_contains_model(endpoint, model: str) -> bool:
     return wanted in {str(item).strip() for item in models}
 
 
-def _is_image_generation_session(sess, owner: str | None = None) -> bool:
-    """Whether this chat session should bypass text chat and generate images.
+_IMAGE_GEN_PROMPT_RE = re.compile(
+    r"\b(generate|create|draw|make|render|produce|paint|design|sketch)\b.*?\b(image|picture|photo|illustration|artwork|drawing|sketch|graphic|wallpaper|portrait|banner|icon|landscape|scene|city|car|apple|robot|factory)\b"
+    r"|\b(image|picture|photo|illustration|wallpaper|drawing)\b.*?\b(of|showing|with|for)\b"
+    r"|\b(generate_image|draw_image|text_to_image|txt2img)\b",
+    re.IGNORECASE | re.DOTALL,
+)
 
-    Model-name prefixes are explicit image models. Endpoint type is only used
-    when the current session endpoint actually matches that image endpoint, and
-    when a populated endpoint model cache includes the selected model. This
-    prevents an image endpoint on the same host from misrouting ordinary text
-    models into the image-generation path.
+
+def is_image_generation_prompt(prompt: str) -> bool:
+    """Return True if prompt explicitly requests image generation/creation."""
+    if not prompt:
+        return False
+    return bool(_IMAGE_GEN_PROMPT_RE.search(prompt))
+
+
+def _is_image_generation_session(sess, owner: str | None = None, prompt: str = "") -> bool:
+    """Whether this chat session turn should route to image generation.
+
+    Model-name prefixes are explicit image models. Prompts requesting image
+    generation also trigger image generation.
     """
+    if prompt and is_image_generation_prompt(prompt):
+        return True
+
     model = (getattr(sess, "model", "") or "").strip()
     if looks_like_image_generation_model(model):
         return True
@@ -1302,7 +1317,7 @@ def setup_chat_routes(
             except Exception as e:
                 logger.warning("Failed to parse attachments JSON, ignoring attachments", exc_info=e)
 
-        image_generation_session = _is_image_generation_session(sess, owner=effective_user(request))
+        image_generation_session = _is_image_generation_session(sess, owner=effective_user(request), prompt=message)
         no_memory = str(form_data.get("no_memory", "")).lower() == "true"
         if image_generation_session:
             no_memory = True
@@ -1868,7 +1883,7 @@ def setup_chat_routes(
             yield f'data: {json.dumps(_model_info)}\n\n'
 
             _terminal_saved = False
-            if _is_image_generation_session(sess, owner=_user):
+            if _is_image_generation_session(sess, owner=_user, prompt=message):
                 from src.settings import get_setting
                 if tool_policy.blocks("generate_image"):
                     _blocked_msg = tool_policy.reason_for("generate_image")

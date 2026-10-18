@@ -64,3 +64,7 @@ psycopg2-binary
 python-docx
 python-pptx
 openpyxl
+# PDF generation for enterprise document export system
+reportlab
+# Desktop tray icon
+pystray

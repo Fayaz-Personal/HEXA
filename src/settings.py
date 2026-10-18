@@ -44,10 +44,10 @@ DEFAULT_SETTINGS = {
     # have been observed inventing signatures and sending to real
     # recipients without confirmation.
     "agent_email_confirm": True,
-    "image_gen_enabled": False,
+    "image_gen_enabled": True,
     "image_model": "",
     "image_quality": "medium",
-    "vision_model": "",
+    "vision_model": "qwen2.5vl:7b",
     "vision_enabled": True,
     # Ordered fallback chain for the Vision model (image analysis, OCR, tagging).
     "vision_model_fallbacks": [],
@@ -55,12 +55,12 @@ DEFAULT_SETTINGS = {
     # (e.g., urgency alert email). Example: "https://chat.example.com"
     "app_public_url": "",
     "tts_enabled": True,
-    "tts_provider": "disabled",
+    "tts_provider": "browser",
     "tts_model": "tts-1",
     "tts_voice": "alloy",
     "tts_speed": "1",
-    "stt_enabled": False,
-    "stt_provider": "disabled",
+    "stt_enabled": True,
+    "stt_provider": "browser",
     "stt_model": "base",
     "stt_language": "",
     "search_provider": "searxng",

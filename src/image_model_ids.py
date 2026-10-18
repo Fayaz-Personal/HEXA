@@ -15,6 +15,9 @@ _IMAGE_MODEL_PREFIXES = (
     "sdxl",
     "boogu",
     "krea-2",
+    "local-diffusers",
+    "diffusers",
+    "local",
 )
 
 

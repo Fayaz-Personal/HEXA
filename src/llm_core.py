@@ -770,6 +770,19 @@ def _build_ollama_payload(
     options.setdefault("repeat_last_n", 128)
     options.setdefault("top_k", 40)
     options.setdefault("top_p", 0.9)
+    # For small qwen3 models (≤9b) running via Ollama, cap the thinking budget
+    # to prevent spending all tokens on reasoning with nothing left for the reply.
+    # qwen3 supports `think` option: true=enable, false=disable extended thinking.
+    # For tiny models (4b/8b/9b) in Ollama, disable thinking by default to ensure
+    # the model always produces a visible reply. Users can re-enable via /think.
+    _model_lc = model.lower()
+    _is_small_qwen3 = (
+        "qwen3" in _model_lc and
+        any(f":{sz}" in _model_lc or f"-{sz}" in _model_lc or f"_{sz}" in _model_lc
+            for sz in ("0.6b", "1.7b", "4b", "8b", "9b", "1b", "3b"))
+    )
+    if _is_small_qwen3 and "think" not in options:
+        options["think"] = False  # Ollama qwen3 think=false disables <think> blocks
     if options:
         payload["options"] = options
     if tools:

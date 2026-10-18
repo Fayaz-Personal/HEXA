@@ -46,7 +46,7 @@ _VISION_MODEL_KEYWORDS = (
     "claude-sonnet", "claude-opus", "claude-haiku", "gemini",
     # open / local
     "vision", "multimodal", "llava", "bakllava", "moondream", "pixtral", "minicpm",
-    "internvl", "cogvlm", "qwen-vl", "qwen2-vl", "qwen3-vl", "qwen3vl",
+    "internvl", "cogvlm", "qwen-vl", "qwen2-vl", "qwen2.5-vl", "qwen2.5vl", "qwen3-vl", "qwen3vl",
     # multimodal families whose names don't contain "vision"/"vl" but DO accept
     # images — without these the image is silently dropped for common Ollama tags
     # like gemma3:4b or gemma4:12b (issue #1274). Gemma 3/4 (4b+), Llama 4 (all),

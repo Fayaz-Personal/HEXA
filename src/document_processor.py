@@ -387,7 +387,7 @@ def _resolve_vl_model(configured: str, owner: str | None = None) -> tuple:
         "gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini",
         "claude-sonnet-4-5-20250929", "claude-opus-4-20250514",
         "gemini-2.0-flash", "gemini-2.5-pro",
-        "llava", "llava:latest", "pixtral", "qwen2-vl", "moondream", "llama3.2-vision",
+        "qwen2.5vl:7b", "qwen2.5vl", "qwen2.5-vl:7b", "qwen3-vl:8b", "llava", "llava:latest", "pixtral", "qwen2-vl", "moondream", "llama3.2-vision",
     ]
     for candidate in candidates:
         try:

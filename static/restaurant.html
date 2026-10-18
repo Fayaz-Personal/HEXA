@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annachies Restaurant - அண்ணாச்சிஸ் ரெஸ்டாரன்ட்</title>
+    <link rel="icon" type="image/png" href="/static/assets/hexa-logo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFF9C4 0%, #FFEB3B 25%, #FFC107 50%, #FFB300 75%, #FFA000 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(255,235,59,0.95) 0%, rgba(255,193,7,0.9) 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            animation: headerFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes headerFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #B71C1C;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from { text-shadow: 3px 3px 6px rgba(0,0,0,0.2); }
+            to { text-shadow: 3px 3px 20px rgba(183,28,28,0.6); }
+        }
+
+        .tamil-title {
+            font-size: 2rem;
+            color: #8B0000;
+            margin-bottom: 15px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #5D4037;
+            font-style: italic;
+        }
+
+        .function-banner {
+            background: linear-gradient(90deg, #B71C1C, #D32F2F, #B71C1C);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            animation: bannerPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bannerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .menu-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #B71C1C 0%, #D32F2F 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(183,28,28,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-item {
+            background: linear-gradient(145deg, #FFF8E1, #FFECB3);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #FFC107;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,193,7,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            border-color: #FFB300;
+        }
+
+        .item-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #B71C1C;
+            margin-bottom: 8px;
+        }
+
+        .item-name-en {
+            display: block;
+        }
+
+        .item-name-ta {
+            display: block;
+            font-size: 1rem;
+            color: #8B0000;
+            margin-top: 5px;
+        }
+
+        .item-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2E7D32;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        .price-badge {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            animation: priceBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes priceBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .language-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .lang-btn {
+            background: linear-gradient(135deg, #B71C1C, #D32F2F);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(183,28,28,0.3);
+        }
+
+        .lang-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(183,28,28,0.5);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #FFC107, #FFB300);
+            color: #333;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(180deg, rgba(255,193,7,0.9) 0%, rgba(255,160,0,0.8) 100%);
+            border-radius: 20px;
+            margin-top: 40px;
+            color: #5D4037;
+        }
+
+        .contact-info {
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            .tamil-title {
+                font-size: 1.5rem;
+            }
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Grid Pattern Effect */
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+            background-image: 
+                linear-gradient(rgba(183,28,28,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(183,28,28,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-pattern"></div>
+    
+    <div class="language-toggle">
+        <button class="lang-btn active" id="langToggle" onclick="toggleLanguage()">
+            English / தமிழ்
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">Annachies</div>
+            <div class="tamil-title">அண்ணாச்சிஸ் ரெஸ்டாரன்ட்</div>
+            <div class="tagline">Authentic Taste • உண்மையான சுவை</div>
+        </header>
+
+        <div class="function-banner">
+            🎉 WE UNDERTAKE ALL FUNCTION ORDERS • எல்லா விழா ஆர்டர்களையும் ஏற்றுக்கொள்கிறோம் 🎉
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="en-text">VARITIES OF SOUP</span>
+                <span class="ta-text hidden">சூப் வகைகள்</span>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Chicken Soup</span>
+                        <span class="item-name-ta">சிக்கன் சூப்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹120</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Mutton Soup</span>
+                        <span class="item-name-ta">மட்டன் சூப்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹150</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Veg Soup</span>
+                        <span class="item-name-ta">காய்கறி சூப்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹80</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="en-text">NON VEG STARTER</span>
+                <span class="ta-text hidden">நான்-வெஜ் ஸ்டார்டர்</span>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Chicken 65</span>
+                        <span class="item-name-ta">சிக்கன் 65</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹180</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Chilli Chicken</span>
+                        <span class="item-name-ta">சில்லி சிக்கன்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹200</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Fish Fry</span>
+                        <span class="item-name-ta">மீன் வறுவல்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹220</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Prawn Fry</span>
+                        <span class="item-name-ta">இறால் வறுவல்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹250</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="en-text">SPECIAL CHICKEN DRY</span>
+                <span class="ta-text hidden">சிறப்பு சிக்கன் ட்ரை</span>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Chicken Manchurian</span>
+                        <span class="item-name-ta">சிக்கன் மஞ்சூரியன்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹190</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Garlic Chicken</span>
+                        <span class="item-name-ta">பூண்டு சிக்கன்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹200</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Pepper Chicken</span>
+                        <span class="item-name-ta">மிளகு சிக்கன்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹210</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="en-text">LEG ITEMS</span>
+                <span class="ta-text hidden">லெக் ஐடம்ஸ்</span>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Chicken Leg Piece</span>
+                        <span class="item-name-ta">சிக்கன் லெக் பீஸ்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹160</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Mutton Leg Piece</span>
+                        <span class="item-name-ta">மட்டன் லெக் பீஸ்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹220</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="en-text">NON VEG GRAVY</span>
+                <span class="ta-text hidden">நான்-வெஜ் கிரேவி</span>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Chicken Curry</span>
+                        <span class="item-name-ta">சிக்கன் கறி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹180</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Mutton Curry</span>
+                        <span class="item-name-ta">மட்டன் கறி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹220</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Fish Curry</span>
+                        <span class="item-name-ta">மீன் கறி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹200</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Egg Curry</span>
+                        <span class="item-name-ta">முட்டை கறி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹120</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="en-text">NAATU KOZHI (Country Chicken)</span>
+                <span class="ta-text hidden">நாட்டு கோழி</span>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Naatu Kozhi Curry</span>
+                        <span class="item-name-ta">நாட்டு கோழி கறி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹280</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Naatu Kozhi Fry</span>
+                        <span class="item-name-ta">நாட்டு கோழி வறுவல்</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹300</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-title">
+                <span class="en-text">VEG GRAVY</span>
+                <span class="ta-text hidden">வெஜ் கிரேவி</span>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Paneer Butter Masala</span>
+                        <span class="item-name-ta">பனீர் பட்டர் மசாலா</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹160</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Dal Makhani</span>
+                        <span class="item-name-ta">தால் மக்கானி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹140</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Mixed Veg Curry</span>
+                        <span class="item-name-ta">கலவை காய்கறி கறி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹130</span></div>
+                </div>
+                <div class="menu-item">
+                    <div class="item-name">
+                        <span class="item-name-en">Mushroom Curry</span>
+                        <span class="item-name-ta">மஷ்ரூம் கறி</span>
+                    </div>
+                    <div class="item-price"><span class="price-badge">₹150</span></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="contact-info">
+                📍 Visit us for authentic taste | 📞 Call for function orders
+            </div>
+            <div class="contact-info" style="margin-top: 10px;">
+                <span class="en-text">© 2024 Annachies Restaurant. All rights reserved.</span>
+                <span class="ta-text hidden">© 2024 அண்ணாச்சிஸ் ரெஸ்டாரன்ட். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            const enTexts = document.querySelectorAll('.en-text');
+            const taTexts = document.querySelectorAll('.ta-text');
+            const itemNamesEn = document.querySelectorAll('.item-name-en');
+            const itemNamesTa = document.querySelectorAll('.item-name-ta');
+            const langBtn = document.getElementById('langToggle');
+
+            if (currentLang === 'en') {
+                currentLang = 'ta';
+                enTexts.forEach(el => el.classList.add('hidden'));
+                taTexts.forEach(el => el.classList.remove('hidden'));
+                itemNamesEn.forEach(el => el.classList.add('hidden'));
+                itemNamesTa.forEach(el => el.classList.remove('hidden'));
+                langBtn.textContent = 'தமிழ் / English';
+                langBtn.classList.add('active');
+            } else {
+                currentLang = 'en';
+                enTexts.forEach(el => el.classList.remove('hidden'));
+                taTexts.forEach(el => el.classList.add('hidden'));
+                itemNamesEn.forEach(el => el.classList.remove('hidden'));
+                itemNamesTa.forEach(el => el.classList.add('hidden'));
+                langBtn.textContent = 'English / தமிழ்';
+                langBtn.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

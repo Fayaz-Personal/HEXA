@@ -185,20 +185,23 @@ def generate_local_image(prompt: str, filename: Optional[str] = None) -> str:
         device = "cuda" if torch.cuda.is_available() else "cpu"
         torch_dtype = torch.float16 if device == "cuda" else torch.float32
 
-        logger.info(f"Launching SDXL PyTorch Diffusers Pipeline on device: {device}...")
+        is_offline = os.getenv("OFFLINE_MODE", "1") == "1" or os.getenv("HF_HUB_OFFLINE", "1") == "1"
         model_id = os.getenv("SDXL_MODEL_PATH", "stabilityai/stable-diffusion-xl-base-1.0")
 
-        pipe = StableDiffusionXLPipeline.from_pretrained(
-            model_id, torch_dtype=torch_dtype, use_safetensors=True
-        )
-        pipe = pipe.to(device)
+        if os.path.exists(model_id) or not is_offline:
+            pipe = StableDiffusionXLPipeline.from_pretrained(
+                model_id, torch_dtype=torch_dtype, use_safetensors=True, local_files_only=True
+            )
+            pipe = pipe.to(device)
 
-        image = pipe(prompt=prompt, num_inference_steps=25).images[0]
-        buf = io.BytesIO()
-        image.save(buf, format="PNG")
-        target_path = save_generated_image_bytes(buf.getvalue(), img_name)
-        logger.info(f"SDXL PyTorch Diffusers image generated: {target_path}")
-        return target_path
+            image = pipe(prompt=prompt, num_inference_steps=25).images[0]
+            buf = io.BytesIO()
+            image.save(buf, format="PNG")
+            target_path = save_generated_image_bytes(buf.getvalue(), img_name)
+            logger.info(f"SDXL PyTorch Diffusers image generated: {target_path}")
+            return target_path
+        else:
+            raise FileNotFoundError(f"Local diffusers model path '{model_id}' not present on disk.")
     except Exception as e:
         logger.warning(f"Diffusers SDXL PyTorch pipeline skipped ({e}). Using Pillow rendering engine.")
 

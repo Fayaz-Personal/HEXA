@@ -9,7 +9,7 @@ from src.constants import GENERATED_IMAGES_DIR
 
 GENERATED_IMAGE_DIR = Path(GENERATED_IMAGES_DIR)
 GENERATED_IMAGE_RE = re.compile(
-    r"^[a-f0-9]{8,64}\.(png|jpg|jpeg|webp|gif|mp4|mov|webm|mkv|m4v)$"
+    r"^[a-zA-Z0-9_-]{8,64}\.(png|jpg|jpeg|webp|gif|mp4|mov|webm|mkv|m4v)$"
 )
 GENERATED_IMAGE_HEADERS = {
     "Cache-Control": "public, max-age=31536000, immutable",
@@ -30,3 +30,13 @@ def resolve_generated_image_path(filename: str) -> Path:
     if not path.exists():
         raise HTTPException(status_code=404, detail="Image not found")
     return path
+
+
+def save_generated_image_bytes(image_bytes: bytes, filename: str) -> str:
+    """Save raw image bytes into GENERATED_IMAGE_DIR and return the full file path."""
+    GENERATED_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    clean_name = os.path.basename(filename)
+    target_path = GENERATED_IMAGE_DIR / clean_name
+    target_path.write_bytes(image_bytes)
+    return str(target_path)
+

@@ -369,6 +369,58 @@ Supported upload formats: `.docx`, `.pdf`, `.xlsx`, `.pptx`, `.epub`, `.txt`, `.
 
 ---
 
+## Local Image Generation System (Air-Gapped & Sovereign)
+
+HEXA AI Workbench features a dedicated local image generation pipeline that works 100% locally on-device without relying on text LLMs or external cloud APIs (e.g. OpenAI DALL-E or Midjourney).
+
+### Hardware & VRAM Recommendations
+- **CUDA GPU (Recommended)**: NVIDIA GPU with 8GB+ VRAM (Stable Diffusion v1.5 / SDXL Turbo) or 16GB+ VRAM (SDXL Base 1.0).
+- **CPU Fallback**: Systems without a dedicated CUDA GPU use a high-contrast industrial Pillow rendering engine with detailed diagnostic overlays.
+- **RAM**: 16GB RAM minimum (32GB recommended for local SDXL fp16 inference).
+
+### Supported Local Runtimes & Models
+1. **Diffusers + PyTorch (Local SDXL / SD 1.5)**:
+   - `stabilityai/stable-diffusion-xl-base-1.0`
+   - `runwayml/stable-diffusion-v1-5`
+   - Pre-downloaded weights stored under local storage (e.g., `models/diffusers/`).
+2. **Local Diffusers MCP Server**:
+   - Standalone Python MCP server (`mcp_servers/image_gen_server.py`) exposing the `generate_image` tool.
+3. **OpenAI-Compatible Custom Endpoints**:
+   - Any local image generator exposing `/v1/images/generations`.
+
+### Air-Gapped Offline Setup & Installation
+1. Install required dependencies:
+   ```powershell
+   pip install torch torchvision diffusers accelerate transformers safetensors pillow
+   ```
+2. To pre-download model weights for strict air-gapped environments:
+   ```powershell
+   python -c "from diffusers import StableDiffusionXLPipeline; StableDiffusionXLPipeline.from_pretrained('stabilityai/stable-diffusion-xl-base-1.0', safetensors=True)"
+   ```
+3. Enable offline mode in `.env` / `data/settings.json`:
+   ```env
+   OFFLINE_MODE=1
+   HF_HUB_OFFLINE=1
+   TRANSFORMERS_OFFLINE=1
+   SDXL_MODEL_PATH=C:/models/stable-diffusion-xl-base-1.0
+   ```
+
+### API Examples
+
+**POST `/api/images/generate`**:
+```json
+{
+  "prompt": "A futuristic industrial robot in a modern factory",
+  "negative_prompt": "blurry, distorted, low quality",
+  "width": 512,
+  "height": 512,
+  "steps": 20
+}
+```
+
+**GET `/api/images/{image_id}`**: Retrieves the generated image file with path-traversal confinement.
+**GET `/api/images/history`**: Lists generated image history from the local SQLite gallery.
+
 ## Authentication
 
 By default (`AUTH_ENABLED=false`), no login is required. Just open the app and start working.

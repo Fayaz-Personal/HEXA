@@ -53,6 +53,7 @@ import { initKeyboardShortcuts } from './js/keyboard-shortcuts.js';
 import { getSettings } from './js/appConfig.js';
 import { initSidebarLayout, syncRailSide } from './js/sidebar-layout.js?v=20260715startupclean';
 import { initSectionCollapse, initSectionDrag } from './js/section-management.js';
+import deliverablesModule from './js/deliverables.js';
 
 const API_BASE = window.location.origin;
 window.themeModule = themeModule;
@@ -1279,6 +1280,14 @@ function initializeEventListeners() {
     toolThemeBtn.addEventListener('click', () => {
       const tm = document.getElementById('theme-modal');
       if (tm) tm.classList.remove('hidden');
+    });
+  }
+
+  // Deliverables modal toggle
+  const toolDeliverablesBtn = el('tool-deliverables-btn');
+  if (toolDeliverablesBtn) {
+    toolDeliverablesBtn.addEventListener('click', () => {
+      deliverablesModule.open();
     });
   }
 

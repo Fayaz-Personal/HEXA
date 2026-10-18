@@ -207,7 +207,7 @@ export function handleUIControl(uiData) {
       } else if (panel === 'memories' || panel === 'skills' || panel === 'settings') {
         // These live in the sidebar / settings drawer — most just need
         // an existing button click.
-        var ids = { memories: 'tool-memory-btn', skills: 'skills-btn', settings: 'open-settings-btn' };
+        var ids = { memories: 'tool-memory-btn', skills: 'skills-btn', settings: 'user-bar-settings' };
         var btn = document.getElementById(ids[panel]);
         if (btn) btn.click();
       }

@@ -762,6 +762,11 @@ from routes.stt_routes import setup_stt_routes
 app.include_router(setup_stt_routes(stt_service))
 logger.info("STT service initialized (provider managed via settings)")
 
+# Images (Dedicated Image Generation Endpoints)
+from routes.images_routes import router as images_router
+app.include_router(images_router)
+logger.info("Image Generation routes initialized (/api/images/generate)")
+
 # Documents (artifacts/canvas)
 from routes.document.document_routes import setup_document_routes
 document_router = setup_document_routes(session_manager, upload_handler)
@@ -828,6 +833,13 @@ app.include_router(setup_backup_routes(memory_manager, preset_manager, skills_ma
 
 from routes.font_routes import setup_font_routes
 app.include_router(setup_font_routes())
+
+# Deliverables & Document Export System (PDF / Word / PowerPoint / Excel / All ZIP)
+from routes.deliverable_routes import setup_deliverable_routes
+from routes.export_routes import setup_export_routes
+app.include_router(setup_deliverable_routes())
+app.include_router(setup_export_routes())
+logger.info("Enterprise document export routes initialized")
 
 
 # MCP (Model Context Protocol)

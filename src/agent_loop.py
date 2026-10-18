@@ -331,6 +331,7 @@ _AGENT_RULES = """\
 - Multiple email accounts: if tool output says "Other accounts" or the user asks "my Gmail?", "other inbox?", "work mail?", "custom domain mail?", or names any mailbox/account, DO NOT answer from memory. Call `list_email_accounts` if needed, then call `list_emails`/`read_email`/`bulk_email` with the exact `account` value for that mailbox. Account names are user-defined labels; if the user typo-matches a known account, use the closest listed account instead of claiming it does not exist. NEVER use `app_api` or `/api/email/accounts` to discover email accounts; that route is owner-filtered in tool context and can falsely return empty.
 - User identity facts/preferences ("my name is <name>", "I live in <place>", "I prefer concise replies", "call me <name>") → use `manage_memory` with action=add. NEVER use `manage_contact` for facts about the user unless the user explicitly says to create/update a contact and provides contact details such as an email or phone.
 - "Create/add/write a note" / "notes" / "todos" / "remind me to X at <time>" → use `manage_notes`. Do NOT store notes in `manage_memory`; memory is for persistent facts/preferences about the user, not note content. For reminders, include a `due_date`; for todos, use `note_type=checklist` when appropriate.
+- "Create a Word document / make a PDF / generate a PowerPoint / create an Excel spreadsheet" (or .docx/.pdf/.pptx/.xlsx) → call `app_api` POST to the deliverable endpoint IMMEDIATELY. Do NOT use bash/python/reportlab/write_file for Office files. Word→POST /api/deliverable/docx (body: {"title":"...","sections":[{"title":"...","body":"..."}]}), Excel→POST /api/deliverable/xlsx (body: {"title":"...","sheets":{"Sheet1":[["Col1","Col2"],["row1col1","row1col2"]]}}), PowerPoint→POST /api/deliverable/pptx (body: {"title":"...","slides":[{"title":"...","points":["point1","point2"]}]}), PDF→POST /api/deliverable/pdf (body: {"title":"...","content":"text here"}). Response has download_url — always render as [Download filename](download_url).
 - "Do X every morning / daily / on a schedule / automatically" (e.g. "summarize my inbox every morning") → this is a request to CREATE A SCHEDULED TASK, not to do X once right now. Call `manage_tasks` with action=create (prompt = what to do, schedule + cron/time). Do NOT just perform the action inline this turn — the user wants it to recur. After creating, return a clickable `[Task name](#task-<id>)` link and tell them it'll run on schedule and show in the Tasks panel. If you also want to show a sample of this run, do that AFTER creating the task, not instead of it.
 
 ## UI conventions
@@ -788,6 +789,15 @@ GENERIC LOOPBACK to allowed Odysseus internal endpoints. Use this whenever the u
 - Email: use named email tools (`list_email_accounts`, `list_emails`, `read_email`, `scan_email_unsubscribes`, `unsubscribe_email`, `send_email`, `reply_to_email`). Do NOT use `/api/email/accounts`; it is owner-filtered in tool context and may falsely return empty.
 - Endpoints (model providers): `/api/endpoints`, `/api/endpoints/{id}`
 - Shell: do NOT use `app_api` for `/api/shell/*`; use named command tooling instead.
+- **Deliverables (Word/Excel/PowerPoint/PDF):** Use `app_api` to generate real Office files instantly — no python-docx/reportlab code needed:
+  - Word (.docx): POST `/api/deliverable/docx` body={"title":"...","sections":[{"title":"...","body":"..."}]}
+  - Excel (.xlsx): POST `/api/deliverable/xlsx` body={"title":"...","sheets":{"Sheet1":[["Col1","Col2"],["val1","val2"]]}}
+  - PowerPoint (.pptx): POST `/api/deliverable/pptx` body={"title":"...","slides":[{"title":"...","points":["point1","point2"]}]}
+  - PDF: POST `/api/deliverable/pdf` body={"title":"...","content":"markdown or plain text"}
+  - List files: GET `/api/deliverable/list`
+  - Download: GET `/api/deliverable/download/{filename}`
+  - On success the response has `download_url` — always render it as a markdown link: `[Download filename](download_url)`.
+  - WHENEVER the user asks to "create a word document", "make a pdf", "generate a powerpoint", "create an excel spreadsheet" or similar — use these endpoints via `app_api`. Do NOT use bash/python/write_file for Office files.
 
 Body for POST/PUT/PATCH goes in `body` (object). Query params in `query` (object). Returns the parsed JSON of the response.
 
@@ -3341,7 +3351,8 @@ def _empty_response_fallback(
     When a thinking model routes all tokens to reasoning_content (leaving
     content=""), full_response is empty but round_reasoning has content.
     The reasoning was already streamed as {thinking:true} chunks — do not
-    re-emit it as a normal delta.  Just persist it and yield nothing.
+    re-emit it as a normal delta.  Just persist it and yield a brief notice
+    so the bubble is never blank.
 
     Returns:
         (final_response: str, chunk: str | None)
@@ -3350,7 +3361,18 @@ def _empty_response_fallback(
     if full_response.strip() or tool_events:
         return full_response, None
     if round_reasoning.strip():
-        return round_reasoning, None
+        # Model spent all tokens thinking but produced no visible reply.
+        # Extract the last meaningful sentence from reasoning to show something.
+        sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', round_reasoning) if len(s.strip()) > 20]
+        last_sentence = sentences[-1] if sentences else ""
+        notice = (
+            f"{last_sentence}\n\n*(The model's response was cut off — it used all available tokens for reasoning. "
+            "Try a shorter prompt or switch to a larger model.)*"
+            if last_sentence else
+            "*(The model used all available tokens for reasoning and produced no visible reply. "
+            "Try a shorter prompt or switch to a larger model.)*"
+        )
+        return notice, f'data: {json.dumps({"delta": notice})}\n\n'
     _error_msg = "The model returned an empty response. Please try again or switch to a different model."
     return _error_msg, f'data: {json.dumps({"delta": _error_msg})}\n\n'
 

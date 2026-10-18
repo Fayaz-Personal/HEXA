@@ -687,7 +687,7 @@ body.bg-pattern-sparkles {
       background: none;
       border: none;
       color: var(--fg);
-      opacity: 0.35;
+      opacity: 0.65;
       cursor: pointer;
       padding: 6px;
       border-radius: 6px;
@@ -9437,7 +9437,10 @@ button.hamburger {
 .katex-display { margin: 0.8em 0; overflow-x: auto; overflow-y: hidden; }
 .katex { font-size: 1.1em; }
 
-/* Hide thinking sections globally via settings toggle */
+/* Hide thinking process sections globally across the UI */
+.thinking-section,
+.thinking-header,
+.thinking-content,
 body.hide-thinking .thinking-section { display: none !important; }
 
 /* Widen chat area via settings toggle */
@@ -9580,6 +9583,158 @@ body.fullwidth-chat .chat-history {
   opacity: 0.8;
 }
 
+
+/* == Tool approval / ask-user card == */
+.ask-user-card {
+  margin: 12px 0;
+  padding: 16px 18px 14px;
+  background: color-mix(in srgb, var(--panel, var(--bg)) 96%, var(--fg) 4%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  max-width: 640px;
+  position: relative;
+}
+
+.ask-user-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.ask-user-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--fg);
+  opacity: 0.4;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: opacity 0.15s;
+}
+.ask-user-close:hover { opacity: 0.8; }
+
+.ask-user-question {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.ask-user-option-desc {
+  font-size: 0.78rem;
+  color: var(--fg);
+  opacity: 0.6;
+  background: color-mix(in srgb, var(--bg) 80%, var(--fg) 8%);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-mono, monospace);
+  line-height: 1.5;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.ask-user-options {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+/* Option buttons -- styled green */
+button.ask-user-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 14px;
+  background: color-mix(in srgb, #22c55e 15%, var(--bg));
+  border: 1px solid color-mix(in srgb, #22c55e 45%, transparent);
+  border-radius: 8px;
+  color: color-mix(in srgb, #16a34a 85%, var(--fg));
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+  line-height: 1.4;
+  width: 100%;
+  box-sizing: border-box;
+}
+button.ask-user-option:hover {
+  background: color-mix(in srgb, #22c55e 26%, var(--bg));
+  border-color: #22c55e;
+  color: color-mix(in srgb, #16a34a 100%, var(--fg));
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(34,197,94,0.15);
+}
+button.ask-user-option:active {
+  transform: translateY(0);
+  box-shadow: none;
+  background: color-mix(in srgb, #22c55e 32%, var(--bg));
+}
+
+/* Last option (Deny) -- subtle red */
+button.ask-user-option:last-child {
+  background: color-mix(in srgb, var(--color-danger, #ef4444) 10%, var(--bg));
+  border-color: color-mix(in srgb, var(--color-danger, #ef4444) 35%, transparent);
+  color: color-mix(in srgb, var(--color-danger, #ef4444) 90%, var(--fg));
+  font-weight: 500;
+}
+button.ask-user-option:last-child:hover {
+  background: color-mix(in srgb, var(--color-danger, #ef4444) 20%, var(--bg));
+  border-color: var(--color-danger, #ef4444);
+  box-shadow: 0 2px 6px rgba(239,68,68,0.12);
+}
+
+.ask-user-option-label {
+  display: block;
+  width: 100%;
+}
+
+/* Sub-description inside non-approval multi-choice buttons */
+button.ask-user-option .ask-user-option-desc {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.65;
+  background: none;
+  border: none;
+  padding: 3px 0 0;
+  margin: 0;
+  font-family: inherit;
+  white-space: normal;
+  max-height: none;
+  overflow: visible;
+  line-height: 1.4;
+}
+
+.ask-user-other {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+.ask-user-other-input {
+  flex: 1;
+  min-width: 0;
+}
+.ask-user-other-send {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .ask-user-card { padding: 12px 12px 10px; }
+  .ask-user-options { gap: 6px; }
+  button.ask-user-option { padding: 9px 12px; font-size: 0.82rem; }
+}
 /* â”€â”€ Sources section â€” collapsible source citations â”€â”€ */
 .sources-section {
   margin: 8px 0 12px;
@@ -24249,6 +24404,118 @@ body.doc-view .doc-editor-pane {
 }
 
 
-/* ── Hide User/login bar (AUTH_ENABLED=false — no login needed) ── */
-#sidebar-user-bar { display: none !important; }
+/* ── Auth disabled: hide login info but keep settings gear visible ── */
+#user-bar-profile { display: none !important; }
 .sidebar-inner { padding-bottom: 8px !important; }
+
+/* ── Hide the hamburger / Show sidebar button ── */
+#hamburger-btn { display: none !important; }
+
+/* ── Enterprise Document Export System ── */
+.export-type-card:hover {
+  border-color: var(--brand-color, #0a9396) !important;
+  background: color-mix(in srgb, var(--brand-color, #0a9396) 8%, transparent) !important;
+}
+
+.export-type-card input[type="radio"]:checked + svg + span {
+  color: var(--brand-color, #0a9396) !important;
+}
+
+.export-status-banner {
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.export-status-banner.status-info {
+  background: color-mix(in srgb, var(--brand-color, #0a9396) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-color, #0a9396) 30%, transparent);
+  color: var(--fg);
+}
+
+.export-status-banner.status-error {
+  background: color-mix(in srgb, var(--color-error, #e74c3c) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-error, #e74c3c) 30%, transparent);
+  color: var(--color-error, #e74c3c);
+}
+
+.export-status-banner.status-success {
+  background: color-mix(in srgb, #10b981 12%, transparent);
+  border: 1px solid color-mix(in srgb, #10b981 30%, transparent);
+  color: var(--fg);
+}
+
+.export-dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.export-dl-main {
+  background: var(--brand-color, #0a9396);
+  color: #ffffff !important;
+}
+
+.export-dl-main:hover {
+  opacity: 0.9;
+}
+
+.export-dl-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  color: var(--fg) !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.export-dl-sub:hover {
+  background: color-mix(in srgb, var(--fg) 14%, transparent);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Message Action Bar Export Button Pill ── */
+.hexa-msg-export-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 3px 10px !important;
+  border-radius: 6px !important;
+  border: 1px solid color-mix(in srgb, var(--brand-color, #0a9396) 40%, transparent) !important;
+  background: color-mix(in srgb, var(--brand-color, #0a9396) 12%, transparent) !important;
+  color: var(--brand-color, #0a9396) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.hexa-msg-export-btn:hover {
+  background: var(--brand-color, #0a9396) !important;
+  color: #ffffff !important;
+  border-color: var(--brand-color, #0a9396) !important;
+}
+
+.hexa-msg-export-btn svg {
+  stroke: currentColor !important;
+  flex-shrink: 0;
+}

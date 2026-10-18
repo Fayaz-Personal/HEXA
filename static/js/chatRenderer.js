@@ -1702,7 +1702,7 @@ export function showWelcomeScreen() {
 
 // ── Dynamic action buttons (show 3 most recent, rest under ···) ──
 const _ACTION_RECENTS_KEY = 'odysseus-msg-actions-recent';
-const _MAX_VISIBLE = 2;
+const _MAX_VISIBLE = 3;
 
 function _getRecentActions() {
   try { return JSON.parse(localStorage.getItem(_ACTION_RECENTS_KEY) || '[]'); } catch { return []; }
@@ -1726,6 +1726,13 @@ export function createMsgFooter(msgElement) {
 
   // Define all available actions: { id, icon, title, className, handler }
   const allActions = [
+    { id: 'export', icon: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span>', title: 'Export as Word, PDF, PowerPoint, Excel', cls: 'msg-action-btn hexa-msg-export-btn', html: true, handler(e) {
+      e.stopPropagation();
+      const content = copyMessageText(msgElement);
+      if (window.hexaExport?.open) {
+        window.hexaExport.open({ content, sourceType: 'current_response' });
+      }
+    }},
     { id: 'copy', icon: COPY_ICON, title: 'Copy message', cls: 'footer-copy-btn', html: true, handler(e) {
       e.stopPropagation();
       const btn = e.currentTarget;
@@ -1762,19 +1769,53 @@ export function createMsgFooter(msgElement) {
   // Filter out unavailable actions (e.g. TTS when not enabled)
   const availableActions = allActions.filter(a => !a.available || a.available());
 
-  // Determine which 3 to show: use recent order, fallback to defaults
-  const recent = _getRecentActions();
-  const defaults = ['copy', 'delete', 'fork'];
-  const order = recent.length > 0 ? recent : defaults;
-  const sorted = [...availableActions].sort((a, b) => {
-    const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
-    if (ai >= 0 && bi >= 0) return ai - bi;
-    if (ai >= 0) return -1;
-    if (bi >= 0) return 1;
-    return 0;
-  });
-  const visible = sorted.slice(0, _MAX_VISIBLE);
-  const overflow = sorted.slice(_MAX_VISIBLE);
+  // Extract user prompt context to see if user prompt explicitly requested document export/generation
+  let userPrompt = '';
+  try {
+    let curr = msgElement;
+    while (curr && curr.previousElementSibling) {
+      curr = curr.previousElementSibling;
+      if (curr.classList && (curr.classList.contains('user') || curr.classList.contains('msg-user'))) {
+        userPrompt = curr.querySelector('.msg-text')?.textContent || curr.textContent || '';
+        break;
+      }
+    }
+  } catch (err) {}
+
+  const exportPattern = /\b(export|download|word|docx|pdf|ppt|pptx|powerpoint|excel|xlsx|csv|zip|generate document|create document|create file|export to|make a file|make document|save as|create report|draft report|document generation)\b/i;
+  const isExportRequested = exportPattern.test(userPrompt) || (msgElement.dataset && msgElement.dataset.exportRequested === 'true');
+
+  let visible = [];
+  let overflow = [];
+
+  if (isExportRequested) {
+    // Show export prominently as primary action button
+    const exportAct = availableActions.find(a => a.id === 'export');
+    const others = availableActions.filter(a => a.id !== 'export');
+    visible = exportAct ? [exportAct, ...others.slice(0, _MAX_VISIBLE - 1)] : others.slice(0, _MAX_VISIBLE);
+    overflow = exportAct ? others.slice(_MAX_VISIBLE - 1) : others.slice(_MAX_VISIBLE);
+  } else {
+    // Hide export from primary visible buttons; keep in overflow (··· menu)
+    const exportAct = availableActions.find(a => a.id === 'export');
+    const others = availableActions.filter(a => a.id !== 'export');
+    
+    const recent = _getRecentActions().filter(x => x !== 'export');
+    const defaults = ['copy', 'edit', 'delete', 'fork'];
+    const order = recent.length > 0 ? recent : defaults;
+    const sorted = [...others].sort((a, b) => {
+      const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
+      if (ai >= 0 && bi >= 0) return ai - bi;
+      if (ai >= 0) return -1;
+      if (bi >= 0) return 1;
+      return 0;
+    });
+    
+    visible = sorted.slice(0, _MAX_VISIBLE);
+    overflow = sorted.slice(_MAX_VISIBLE);
+    if (exportAct) {
+      overflow.unshift(exportAct);
+    }
+  }
 
   // Render visible buttons
   function _addBtn(action, container) {
@@ -2459,9 +2500,20 @@ export function renderAskUserCard(payload, options) {
   };
 
   opts.forEach((opt) => {
-    const label = (opt && opt.label) ? String(opt.label) : String(opt || '');
-    if (!label) return;
-    const description = (opt && opt.description) ? String(opt.description) : '';
+    const rawLabel = (opt && opt.label) ? String(opt.label) : String(opt || '');
+    if (!rawLabel) return;
+    // Shorten verbose tool-approval labels for display (value/decision is unchanged)
+    const APPROVAL_LABEL_SHORT = {
+      'Allow for this task': 'Allow this task',
+      'Allow for this chat session': 'Allow this session',
+      'Allow for this chat': 'Allow this session',
+    };
+    const label = isToolApproval
+      ? (APPROVAL_LABEL_SHORT[rawLabel] || rawLabel)
+      : rawLabel;
+    // For tool_approval cards, descriptions are already shown in the action
+    // detail box above — don't repeat them inside each button.
+    const description = (!isToolApproval && opt && opt.description) ? String(opt.description) : '';
     const row = document.createElement(multi ? 'label' : 'button');
     row.className = 'ask-user-option';
     if (multi) {

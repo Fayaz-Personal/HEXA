@@ -586,10 +586,10 @@ export function processWithThinking(text) {
   const doneOnly = /^\s*\[DONE\]\s*$/i.test(visibleContent);
   const hadTrailingDone = !doneOnly && /(?:^|\n)\s*\[DONE\]\s*$/i.test(visibleContent);
 
-  // Add thinking sections (collapsed by default)
-  thinkingBlocks.forEach((block, index) => {
-    html += createThinkingSection(block, index, thinkingTime);
-  });
+  // Thinking sections disabled per user preference (only final AI answer is displayed)
+  // thinkingBlocks.forEach((block, index) => {
+  //   html += createThinkingSection(block, index, thinkingTime);
+  // });
 
   // Add the actual content
   if (doneOnly) {

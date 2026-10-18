@@ -923,9 +923,14 @@ class UploadHandler:
 
             now = datetime.now()
             current_info = matching_rows[0]
-            if owner and not is_admin and current_info.get("owner") != owner:
+            stored_owner = current_info.get("owner")
+            # Allow access when:
+            # 1. File has no owner (uploaded in single-user/auth-disabled mode) — always accessible
+            # 2. Owner matches exactly
+            # 3. Caller is admin
+            if stored_owner is not None and owner and not is_admin and stored_owner != owner:
                 return None
-            if not owner and current_info.get("owner") is not None:
+            if not owner and stored_owner is not None:
                 return None
 
             existing_paths: set[str] = set()

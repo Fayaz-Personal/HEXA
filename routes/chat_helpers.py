@@ -1013,6 +1013,20 @@ def _extract_thinking_meta(text: str) -> dict | None:
         # block visually at display time, so nothing changes for the normal case.
         if thinking and reply:
             return {"thinking": thinking, "reply": reply, "time": think_time}
+        # FIX: reply is empty — model ran out of tokens inside <think>.
+        # Extract the last coherent sentence from the thinking block as the reply
+        # so the bubble is never blank.
+        if thinking and not reply:
+            # Try to find a final answer quoted inside the thinking
+            last_quote = re.findall(r'["\u201c]([^"\u201d]{10,})["\u201d]', thinking)
+            if last_quote:
+                extracted_reply = last_quote[-1].strip()
+            else:
+                # Use the last non-empty sentence from the thinking content
+                sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', thinking) if len(s.strip()) > 20]
+                extracted_reply = sentences[-1] if sentences else thinking[-300:].strip()
+            if extracted_reply:
+                return {"thinking": thinking, "reply": extracted_reply, "time": think_time}
 
     # Detect Thinking Process: or Gemma-style reasoning
     normalized = _normalize_thinking(text)
@@ -1023,6 +1037,16 @@ def _extract_thinking_meta(text: str) -> dict | None:
             reply = think_match2.group(2).strip()
             if thinking and reply:
                 return {"thinking": thinking, "reply": reply, "time": think_time}
+            # FIX: same extraction for normalized path
+            if thinking and not reply:
+                last_quote = re.findall(r'["\u201c]([^"\u201d]{10,})["\u201d]', thinking)
+                if last_quote:
+                    extracted_reply = last_quote[-1].strip()
+                else:
+                    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', thinking) if len(s.strip()) > 20]
+                    extracted_reply = sentences[-1] if sentences else thinking[-300:].strip()
+                if extracted_reply:
+                    return {"thinking": thinking, "reply": extracted_reply, "time": think_time}
 
     if normalized_changed and text.strip() and text.strip() != original_text.strip():
         return {"thinking": "", "reply": text.strip(), "time": think_time}
